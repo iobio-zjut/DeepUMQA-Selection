@@ -8,10 +8,6 @@ __pycache__/
 *.egg-info/
 .venv/
 
-# Example score CSVs (CASP data; remove these two lines if you intend to ship samples)
-DeepUMQA-Global/*.csv
-MViewEMA/*.csv
-
 # Editor / OS
 .vscode/
 .idea/
