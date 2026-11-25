@@ -1,0 +1,18 @@
+# Generated data
+output/
+USR/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Example score CSVs (CASP data; remove these two lines if you intend to ship samples)
+DeepUMQA-Global/*.csv
+MViewEMA/*.csv
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
