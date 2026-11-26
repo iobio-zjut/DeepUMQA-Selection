@@ -1,0 +1,8 @@
+# Minimum versions tested; keep lower bounds (not ==) so users can match their environment.
+# torch: CPU build is sufficient; install the variant matching your CUDA setup if needed.
+numpy>=1.24
+scipy>=1.10
+pandas>=2.0
+biopython>=1.81
+torch>=2.0
+tqdm>=4.65
