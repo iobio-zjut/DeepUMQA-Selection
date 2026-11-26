@@ -39,6 +39,18 @@ Requirements:
 
 heter reads G only; `MViewEMA/<target>.csv` is neither checked nor read.
 
+For larger pools (e.g. >3000 models), the two single-model scorers can be
+replaced by AlphaFold3 self-assessment scores. Keep the same file names and
+`name,score` format:
+
+- `DeepUMQA-Global/<target>.csv` — AF3 ranking confidence (used as G)
+- `MViewEMA/<target>.csv` — AF3 pLDDT (used as MV)
+
+All requirements in the table above still apply (identical `name` sets for
+homo, `.pdb` suffix, matching `.npz` stems). The pipeline reads only the two
+columns, so no code change is needed. heter still uses G only.
+
+
 Sample CSVs for T1292 and H1208 are included as input references (see [Examples](#3-examples)); replace them with your own for other targets.
 
 ### 1.2 Model list
