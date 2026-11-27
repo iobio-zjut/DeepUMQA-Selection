@@ -41,6 +41,7 @@ Each candidate model is described by two complementary per-model scores and one 
 - **DeepUMQA-Global (G)**&#8203; — a per-model **Score** for interface topology evaluation.
 - **MViewEMA (MV)**&#8203; — a per-model **Score** for global topology assessment.
 - **USR shape features** — rotation- and translation-invariant fingerprints of residue-level distance distributions, used to measure inter-model structural similarity.
+
 In the manuscript, G and MV are termed **EMASIT** and **EMASGT**, respectively; the **homo** pipeline uses both, whereas **heter** uses G (EMASIT) only.
 
 The **homo** pipeline (homomeric complexes) combines G and MV to build and iteratively refine a weighted candidate pool, then ranks it by consensus across randomly formed groups to output the Top-5 models.
