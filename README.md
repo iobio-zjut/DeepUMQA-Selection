@@ -41,6 +41,7 @@ Each candidate model is described by two complementary per-model scores and one 
 - **DeepUMQA-Global (G)**&#8203; — a per-model **Score** for interface topology evaluation.
 - **MViewEMA (MV)**&#8203; — a per-model **Score** for global topology assessment.
 - **USR shape features** — rotation- and translation-invariant fingerprints of residue-level distance distributions, used to measure inter-model structural similarity.
+In the manuscript, G and MV are termed **EMASIT** and **EMASGT**, respectively; the **homo** pipeline uses both, whereas **heter** uses G (EMASIT) only.
 
 The **homo** pipeline (homomeric complexes) combines G and MV to build and iteratively refine a weighted candidate pool, then ranks it by consensus across randomly formed groups to output the Top-5 models.
 
@@ -208,8 +209,9 @@ Result: `output/H1208/Select.mass.txt`.
 
 If you use this pipeline, please cite the scoring backends:
 
+- Liang F, Xie L, Ye EJ, et al. Ultrafast and accurate selection of high-quality protein complex models from large-scale prediction. *bioRxiv* [Preprint]. 2026. <https://doi.org/10.64898/2026.09.26.754618>
 - Liu D, Zhao XF, Zhang TY, et al. Efficient global accuracy estimation for protein complex structural models using multi-view representation learning. *Cell Reports Methods*. 2026;6:101312. <https://github.com/iobio-zjut/MViewEMA>
-- Xie L, Ye EJ, Wang HD, Zhang TY, Zhen QH, Liang F, Liu D, Zhang GJ. Highly accurate estimation of the fold accuracy of protein structural models. 2026. <https://doi.org/10.64898/2026.04.15.718808> / <https://github.com/iobio-zjut/DeepUMQA-Global>
+- Xie L, Ye EJ, Wang HD, Zhang TY, Zhen QH, Liang F, Liu D, Zhang GJ. Highly accurate estimation of the fold accuracy of protein structural models. *bioRxiv* [Preprint]. 2026. <https://doi.org/10.64898/2026.04.15.718808> / <https://github.com/iobio-zjut/DeepUMQA-Global>
 
 A citation entry for DeepUMQA-Selection itself will be added upon publication.
 
