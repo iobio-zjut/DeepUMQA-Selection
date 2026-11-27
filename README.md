@@ -1,6 +1,6 @@
 # DeepUMQA-Selection
 
-Consensus-based QA selection driven by two per-model scores: **DeepUMQA-Global (G)** and **MViewEMA (MV)**. With per-model scores plus USR shape features, it outputs the **top-5 models** per target (`Select.mass.txt`).
+Consensus-based QA selection driven by two per-model scores: **DeepUMQA-Global (G)**&#8203; and **MViewEMA (MV)**&#8203;. With per-model scores plus **Ultrafast Shape Recognition (USR)**&#8203; descriptors, it outputs the **top-5 models** per target (`Select.mass.txt`).
 
 ## 1. Overview
 
@@ -34,13 +34,13 @@ DeepUMQA-Selection/
 
 ## 2. Method Overview
 
-DeepUMQA-Selection is a two-stage framework: per-model scores first screen a large candidate pool down to a smaller, higher-quality set, and USR-based structural consensus then re-ranks the retained models without explicit structural superposition.
+DeepUMQA-Selection is a two-stage framework: a preliminary selection stage screens the candidate pool with per-model scores, and a consensus selection stage re-ranks the retained models through **Ultrafast Shape Recognition (USR)-based structural descriptor comparison**, without explicit structural superposition.
 
-Each candidate model is described by two complementary per-model scores and one structural descriptor:
+Each candidate model is described by two complementary single-model scores and a structural descriptor:
 
-- **DeepUMQA-Global (G)**&#8203; — a per-model **Score** for interface topology evaluation.
-- **MViewEMA (MV)**&#8203; — a per-model **Score** for global topology assessment.
-- **USR shape features** — rotation- and translation-invariant fingerprints of residue-level distance distributions, used to measure inter-model structural similarity.
+- **DeepUMQA-Global (G)**<span class="token entity" title="​">&#8203;</span> — a per-model **Score** for interface topology evaluation.
+- **MViewEMA (MV)**<span class="token entity" title="​">&#8203;</span> — a per-model **Score** for global topology assessment via multi-view representation learning.
+- **USR descriptors** — rotation- and translation-invariant residue-level fingerprints built from distance distributions to three reference points; model pairs are compared directly through these descriptors.
 
 In the manuscript, G and MV are termed **EMA<sub>SIT</sub>** and **EMA<sub>SGT</sub>**, respectively; the **homo** pipeline uses both, whereas **heter** uses G (EMA<sub>SIT</sub>) only.
 
@@ -75,6 +75,23 @@ pip install -r requirements.txt
 
 Thread count defaults to **4**. BLAS/OMP threads and heter's parallel npz loading both follow `SLURM_CPUS_PER_TASK` or `TOTAL_CPUS` (default 4).
 
+### 3.3 Upstream Scorers (optional)
+
+The G and MV score CSVs in §4.1 are produced by [DeepUMQA-Global](https://github.com/iobio-zjut/DeepUMQA-Global) and [MViewEMA](https://github.com/iobio-zjut/MViewEMA). They have their own environments, separate from the requirements in §3.1 — install them only if you need to generate the score CSVs yourself; running this pipeline does not require them. Both provide a Singularity container as an alternative to a manual setup.
+
+**DeepUMQA-Global (G)**<span class="token entity" title="​">&#8203;</span>
+
+- Python ≥ 3.8; PyTorch 1.11.0; PyTorch Geometric 2.0.4; biopython 1.78; numpy 1.18.5; pandas 1.3.5; scipy 1.7.3
+- PyRosetta ≥ 2021.38+release.4d5a969
+- Voronota (MIT, conda env `vorolf`), Foldseek (GPL-3.0, conda env `foldseek-multimer`), ProteinMPNN (MIT, conda env `MPNN`)
+- Singularity container (6.64 GB)
+
+**MViewEMA (MV)**<span class="token entity" title="​">&#8203;</span>
+
+- Python ≥ 3.8; PyTorch 1.11.0; PyTorch Geometric 2.0.4
+- PyRosetta ≥ 2021.38+release.4d5a969
+- Singularity container (7.31 GB)
+
 ## 4. Input Preparation
 
 ### 4.1 Score CSVs
@@ -105,7 +122,7 @@ Requirements:
 
 heter reads G only; `MViewEMA/<target>.csv` is neither checked nor read.
 
-For targets with **sequence length > 1500 residues**, per-model **Score** values can instead be taken from the self-assessment output of the structure prediction tool, whereas the provided G / MV scorers are intended for targets of **1500 residues or fewer**. Keep the same file names and `name,score` format, with the self-assessment Score placed in the `score` column. All requirements in the table above still apply (identical `name` sets for homo, `.pdb` suffix, matching `.npz` stems). The pipeline reads only the two columns, so no code change is needed. heter still uses G only.
+For targets with **sequence length > 1500 residues**, per-model **Score** values can instead be taken from the self-assessment output of the structure prediction tool, whereas the provided G / MV scorers are intended for targets of **1500 residues or fewer**. Keep the same file names and `name,score` format, with the Ranking Confidence / pLDDT  placed in the `score` column. All requirements in the table above still apply (identical `name` sets for homo, `.pdb` suffix, matching `.npz` stems). The pipeline reads only the two columns, so no code change is needed. heter still uses G only.
 
 Sample CSVs for T1292 and H1208 are included as input references (see [Examples](#6-examples)); replace them with your own for other targets.
 
@@ -169,7 +186,7 @@ Included for reference only, not as a runnable dataset:
 - `DeepUMQA-Global/T1292.csv`, `MViewEMA/T1292.csv`, `DeepUMQA-Global/H1208.csv` — score CSVs in the required format (G for both targets, MV for homo only).
 - `example/T1292_Select.mass.txt`, `example/H1208_Select.mass.txt` — expected top-5 outputs for verifying your run.
 
-The 8040 PDB decoys behind these CSVs come from the CASP16-CAPRI MassiveFold dataset (see [Resource](#7-resource)); follow its citation and usage terms when reusing them. A full run also needs those PDBs (or precomputed USR `.npz` features) and a `--model-list` file — the CSVs alone are not sufficient.
+The example targets T1292 and H1208 each contain 8040 candidate structural models generated by MassiveFold for CASP16-CAPRI MassiveFold dataset (see [Resource](#7-resource)); follow its citation and usage terms when reusing them. A full run also needs those PDBs (or precomputed USR `.npz` features) and a `--model-list` file — the CSVs alone are not sufficient.
 
 ### 6.2 Homomer target T1292 (mode `homo`; G + MV)
 
@@ -208,9 +225,12 @@ Result: `output/H1208/Select.mass.txt`.
 
 **Citation**
 
-If you use this pipeline, please cite the scoring backends:
+If you use DeepUMQA-Selection in your research, please cite:
 
 - Liang F, Xie L, Ye EJ, et al. Ultrafast and accurate selection of high-quality protein complex models from large-scale prediction. *bioRxiv* [Preprint]. 2026. <https://doi.org/10.64898/2026.09.26.754618> / <https://github.com/iobio-zjut/DeepUMQA-Selection>
+
+For the single-model accuracy estimation methods integrated into DeepUMQA-Selection, please cite:
+
 - Liu D, Zhao XF, Zhang TY, et al. Efficient global accuracy estimation for protein complex structural models using multi-view representation learning. *Cell Reports Methods*. 2026;6:101312. <https://doi.org/10.1016/j.crmeth.2026.101312> / <https://github.com/iobio-zjut/MViewEMA>
 - Xie L, Ye EJ, Wang HD, Zhang TY, Zhen QH, Liang F, Liu D, Zhang GJ. Highly accurate estimation of the fold accuracy of protein structural models. *bioRxiv* [Preprint]. 2026. <https://doi.org/10.64898/2026.04.15.718808> / <https://github.com/iobio-zjut/DeepUMQA-Global>
 
